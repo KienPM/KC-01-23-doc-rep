@@ -22,7 +22,7 @@ def make_model():
 
     mongo_client = MongoClient('localhost', 27017)
     mongo_client.server_info()
-    db = mongo_client['KC_01_23_4_3_1']
+    db = mongo_client['KC_01_23']
     collection = db['tokenized']
     sentences = list(prepare_data(collection))
 
@@ -39,5 +39,5 @@ def test_model():
 
 
 if __name__ == '__main__':
-    # make_model()
-    test_model()
+    make_model()
+    # test_model()

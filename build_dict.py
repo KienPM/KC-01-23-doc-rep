@@ -6,7 +6,7 @@ from tqdm import tqdm
 
 mongo_client = MongoClient('localhost', 27017)
 mongo_client.server_info()
-db = mongo_client['KC_01_23_4_3_1']
+db = mongo_client['KC_01_23']
 tokenized_collection = db['tokenized']
 regex = re.compile(r'[0-9@!#$%^&*()<>?/\|}{~:.,–]')
 

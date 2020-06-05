@@ -9,7 +9,7 @@ annotator = VnCoreNLP(address="http://172.27.169.164", port=9000)
 
 mongo_client = MongoClient('localhost', 27017)
 mongo_client.server_info()
-db = mongo_client['KC_01_23_4_3_1']
+db = mongo_client['KC_01_23']
 doc_collection = db['documents']
 tokenized_collection = db['tokenized']
 
