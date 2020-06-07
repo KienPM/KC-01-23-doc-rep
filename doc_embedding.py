@@ -39,55 +39,49 @@ def doc2words(file):
     return doc_words
 
 
-def tf_idf_doc_embedding(file):
+def tf_idf_doc_embedding(input_file, output_file):
     print('TF-IDF')
     print('Loading model...')
     model = models.TfidfModel.load('models/tf_idf/tf_idf.model')
-    doc_words = doc2words(file)
+    doc_words = doc2words(input_file)
     bow = dictionary.doc2bow(doc_words, allow_update=False)
     rep = model[bow]
 
-    output_dir = os.path.dirname(file)
-    output_file = os.path.basename(file).split('.')[0] + '_tf_idf.txt'
-    output_path = os.path.join(output_dir, output_file)
-    print(f'Writing to {output_path}...')
-    out = open(output_path, 'w')
+    print(f'Writing to {output_file}...')
+    out = open(output_file, 'w')
     for item in rep:
         out.write(f'{dictionary[item[0]]},{item[1]}\n')
     out.close()
     print('Done!')
 
 
-def lda_doc_embedding(file):
+def lda_doc_embedding(input_file, output_file):
     print('LDA')
     print('Loading model...')
     model = models.LdaModel.load('models/lda/lda.model')
     print(f'Number of topics: {model.num_topics}')
-    doc_words = doc2words(file)
+    doc_words = doc2words(input_file)
     bow = dictionary.doc2bow(doc_words, allow_update=False)
     rep = ['0'] * model.num_topics
     lda_output = model[bow]
     for item in lda_output[0]:
         rep[item[0]] = str(item[1])
 
-    output_dir = os.path.dirname(file)
-    output_file = os.path.basename(file).split('.')[0] + '_lda.txt'
-    output_path = os.path.join(output_dir, output_file)
-    print(f'Writing to {output_path}...')
-    out = open(output_path, 'w')
+    print(f'Writing to {output_file}...')
+    out = open(output_file, 'w')
     out.write(','.join(rep))
     out.close()
     print('Done!')
 
 
-def word2vec_doc_embedding(file):
+def word2vec_doc_embedding(input_file, output_file):
     print('word2vec')
     print('Loading model...')
     model = models.Word2Vec.load('models/word2vec/word2vec.model')
     vector_size = model.vector_size
     print(f'Vector size: {vector_size}')
     mat = []
-    doc_words = doc2words(file)
+    doc_words = doc2words(input_file)
     word_vectors = model.wv
     for w in doc_words:
         if w in word_vectors:
@@ -100,11 +94,8 @@ def word2vec_doc_embedding(file):
     rep /= mat.shape[0]
     rep = [str(item) for item in rep]
 
-    output_dir = os.path.dirname(file)
-    output_file = os.path.basename(file).split('.')[0] + '_word2vec.txt'
-    output_path = os.path.join(output_dir, output_file)
-    print(f'Writing to {output_path}...')
-    out = open(output_path, 'w')
+    print(f'Writing to {output_file}...')
+    out = open(output_file, 'w')
     out.write(','.join(rep))
     out.close()
     print('Done!')
@@ -124,15 +115,26 @@ if __name__ == '__main__':
         default='word2vec',
         help='Model to be used (tf-idf | lda | word2vec)'
     )
+    arg_parser.add_argument(
+        '--output_file',
+        type=str,
+        help='Path to output file'
+    )
     args = arg_parser.parse_args()
     input_file = args.input_file
     model_type = args.model
+    output_file = args.output_file
+
+    if output_file is None:
+        output_dir = os.path.dirname(input_file)
+        output_file_name = f"{os.path.basename(input_file).split('.')[0]}_{model_type}.txt"
+        output_file = os.path.join(output_dir, output_file_name)
 
     if model_type == 'tf-idf':
-        tf_idf_doc_embedding(input_file)
+        tf_idf_doc_embedding(input_file, output_file)
     elif model_type == 'lda':
-        lda_doc_embedding(input_file)
+        lda_doc_embedding(input_file, output_file)
     elif model_type == 'word2vec':
-        word2vec_doc_embedding(input_file)
+        word2vec_doc_embedding(input_file, output_file)
     else:
         print(f'{model_type} is not supported! (tf-idf | lda | word2vec)')
