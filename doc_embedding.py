@@ -1,13 +1,12 @@
 """ Create by Ken at 2020 Jun 07 """
 import os
+import sys
 import argparse
 import numpy as np
 
 from gensim import corpora, models
 from vncorenlp import VnCoreNLP
 from underthesea import sent_tokenize
-
-annotator = VnCoreNLP(address="http://localhost", port=9000)
 
 
 def load_dict_words():
@@ -16,11 +15,6 @@ def load_dict_words():
     for line in lines:
         dict_words.append(line.strip())
     return dict_words
-
-
-print('Loading dictionary...')
-dict_words = load_dict_words()
-dictionary = corpora.Dictionary([dict_words])
 
 
 def doc2words(file):
@@ -106,7 +100,6 @@ if __name__ == '__main__':
     arg_parser.add_argument(
         '--input_file',
         type=str,
-        default='data/test_doc.txt',
         help='Path to input file'
     )
     arg_parser.add_argument(
@@ -124,6 +117,19 @@ if __name__ == '__main__':
     input_file = args.input_file
     model_type = args.model
     output_file = args.output_file
+
+    if input_file is None:
+        print('You have to specify input file with (e.g. python doc_embedding.py --input_file doc.txt)')
+        print('Use -h or --help for more options')
+        sys.exit(0)
+    if not os.path.exists(input_file):
+        print('Input file does not exist')
+        sys.exit(0)
+
+    annotator = VnCoreNLP(address="http://localhost", port=9000)
+    print('Loading dictionary...')
+    dict_words = load_dict_words()
+    dictionary = corpora.Dictionary([dict_words])
 
     if output_file is None:
         output_dir = os.path.dirname(input_file)
